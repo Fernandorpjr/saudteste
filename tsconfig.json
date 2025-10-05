@@ -26,6 +26,6 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src", "AI_RULES.md"],
+  "include": ["src", "AI_RULES.md", "src/vite-env.d.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
