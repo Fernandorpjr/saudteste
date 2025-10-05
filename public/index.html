@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏥</text></svg>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cronograma USF Apipucos</title>
+    <meta name="description" content="Sistema de agendamento e visualização de cronograma para a Unidade de Saúde da Família Apipucos - Recife">
+    <meta name="keywords" content="cronograma, saúde, USF, Apipucos, agendamento, médico, enfermagem">
+    <meta name="author" content="Equipe USF Apipucos">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#007bff">
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+        // Register service worker for PWA
+        if ('serviceWorker' in navigator) {
+            try {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(() => console.log('✅ Service Worker registrado'))
+                    .catch(error => console.log('ℹ️ Service Worker não disponível', error));
+            } catch (error) {
+                console.log('ℹ️ Service Worker não disponível');
+            }
+        }
+    </script>
+</body>
+</html>
