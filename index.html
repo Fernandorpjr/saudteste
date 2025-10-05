@@ -1,0 +1,2224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cronograma USF Apipucos - Sistema Avançado</title>
+    <meta name="description" content="Sistema de agendamento e visualização de cronograma para a Unidade de Saúde da Família Apipucos - Recife">
+    <meta name="keywords" content="cronograma, saúde, USF, Apipucos, agendamento, médico, enfermagem">
+    <meta name="author" content="Equipe USF Apipucos">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#007bff">
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏥</text></svg>">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Critical CSS - Above the fold */
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Loading spinner */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,123,255,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .logo-section {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .title-section {
+            flex: 2;
+        }
+        
+        .logo {
+            max-height: 80px;
+            width: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        
+        
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        header p {
+            margin: 10px 0 0;
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        /* Responsive header */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .logo-section {
+                flex-direction: row;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        /* Enhanced tabs */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .tab-button {
+            padding: 15px 25px;
+            border: none;
+            background: white;
+            color: #007bff;
+            cursor: pointer;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tab-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,123,255,0.2);
+        }
+        
+        .tab-button.active {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+        }
+        
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid #007bff;
+        }
+        
+        /* Content area */
+        .content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            min-height: 400px;
+        }
+        
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        th, td {
+            border: 1px solid #dee2e6;
+            padding: 15px 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        td[contenteditable="true"] {
+            cursor: text;
+            outline: 2px dashed #007bff;
+            outline-offset: -2px;
+            background-color: #fff3cd;
+        }
+        
+        td[contenteditable="true"]:focus {
+            outline: 2px solid #0056b3;
+            background-color: #e9f7fe;
+            box-shadow: inset 0 0 10px rgba(0,123,255,0.2);
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        tr:hover {
+            background-color: #e9ecef;
+            transform: scale(1.01);
+        }
+        
+        /* Color classes for schedule cells */
+        .lunch {
+            background-color: #ffc107 !important;
+            color: #212529 !important;
+        }
+        
+        .collection {
+            background-color: #28a745 !important;
+            color: white !important;
+        }
+        
+        .study-day {
+            background-color: #17a2b8 !important;
+            color: white !important;
+        }
+        
+        .vacancy {
+            background-color: #6f42c1 !important;
+            color: white !important;
+        }
+        
+        .dental {
+            background-color: #e83e8c !important;
+            color: white !important;
+        }
+        
+        /* Action buttons */
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .action-button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .whatsapp-button {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+        }
+        
+        .print-button {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+        }
+        
+        .edit-button {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+        }
+        
+        .save-button {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            color: white;
+        }
+        
+        .export-button {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            color: white;
+        }
+        
+        .action-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        .action-button:active {
+            transform: translateY(-1px);
+        }
+        
+        /* Legend styles */
+        .legend {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        
+        .legend h3 {
+            color: #007bff;
+            margin-top: 0;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .legend-item:hover {
+            transform: translateY(-2px);
+        }
+        
+        .legend-color {
+            width: 25px;
+            height: 25px;
+            border-radius: 6px;
+            margin-right: 12px;
+            cursor: pointer;
+            border: 2px solid #ddd;
+            transition: all 0.3s ease;
+        }
+        
+        .legend-color:hover {
+            transform: scale(1.2);
+            border-color: #007bff;
+        }
+        
+        /* Color classes */
+        .lunch { background-color: #ffc107; }
+        .collection { background-color: #28a745; }
+        .study-day { background-color: #17a2b8; }
+        .vacancy { background-color: #6f42c1; color: white; }
+        .dental { background-color: #e83e8c; color: white; }
+        
+        /* Red timeline marker */
+        .timeline-marker {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #ff0000;
+            z-index: 100;
+            box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+            pointer-events: none;
+        }
+        
+        .timeline-marker::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 8px solid #ff0000;
+        }
+        
+        /* Curtain panel for color palette */
+        .curtain-panel {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            width: 300px;
+            height: 100%;
+            background: white;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            transition: right 0.3s ease;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .curtain-panel.open {
+            right: 0;
+        }
+        
+        .curtain-toggle {
+            position: fixed;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 15px 10px;
+            cursor: pointer;
+            z-index: 1001;
+            border-radius: 5px 0 0 5px;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+        }
+        
+        .curtain-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .curtain-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6c757d;
+        }
+        
+        /* Custom color palette */
+        .custom-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 5px;
+            cursor: pointer;
+            border: 2px solid #ddd;
+            transition: all 0.3s ease;
+        }
+        
+        .custom-color:hover {
+            transform: scale(1.2);
+            border-color: #007bff;
+        }
+        
+        .custom-color.active {
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px #007bff;
+        }
+        
+        .color-picker-container {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .color-picker-title {
+            font-weight: 600;
+            color: #007bff;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Responsive table adjustments */
+        @media (max-width: 1200px) {
+            .content {
+                padding: 15px;
+            }
+            
+            th, td {
+                padding: 10px 8px;
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            th, td {
+                padding: 8px 6px;
+                font-size: 13px;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .content {
+                padding: 10px;
+            }
+            
+            table {
+                font-size: 12px;
+            }
+            
+            th, td {
+                padding: 6px 4px;
+            }
+            
+            .actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .action-button {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+                margin-bottom: 10px;
+            }
+            
+            /* Adjust curtain panel for mobile */
+            .curtain-panel {
+                width: 250px;
+            }
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            background: linear-gradient(135deg, #343a40, #495057);
+            color: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        /* Accessibility improvements */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        
+        /* Focus styles for accessibility */
+        button:focus,
+        .tab-button:focus,
+        .action-button:focus {
+            outline: 3px solid #007bff;
+            outline-offset: 2px;
+        }
+        
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+            
+            .actions,
+            .tabs,
+            footer {
+                display: none;
+            }
+            
+            .content {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+            
+            table {
+                page-break-inside: avoid;
+            }
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                color: #e9ecef;
+            }
+            
+            .content {
+                background-color: #343a40;
+                color: #e9ecef;
+            }
+            
+            table {
+                background-color: #343a40;
+            }
+            
+            tr:nth-child(even) {
+                background-color: #495057;
+            }
+            
+            tr:hover {
+                background-color: #6c757d;
+            }
+        }
+        
+        /* Animation for content loading */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Progress indicator */
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background-color: #e9ecef;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #0056b3);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div class="logo-section">
+                    <img src="logotipo-recife-cuida.jpeg" alt="Logo Recife Cuida" class="logo">
+                    <img src="logotipo-sus.jpeg" alt="Logo SUS" class="logo">
+                </div>
+                <div class="title-section">
+                    <h1>Cronograma USF Apipucos</h1>
+                    <p class="subtitle">Sistema Avançado de Agendamento e Visualização</p>
+                </div>
+            </div>
+        </header>
+
+        
+
+        <nav class="tabs" role="tablist" aria-label="Navegação do cronograma">
+            <button class="tab-button" role="tab" aria-selected="false" onclick="openTab(event, 'resumo')" id="tab-resumo">
+                <i class="fas fa-calendar-week" aria-hidden="true"></i> Resumo da Semana
+            </button>
+            <button class="tab-button" role="tab" aria-selected="false" onclick="openTab(event, 'segunda')" id="tab-segunda">
+                <i class="fas fa-calendar-day" aria-hidden="true"></i> Segunda-feira
+            </button>
+            <button class="tab-button" role="tab" aria-selected="false" onclick="openTab(event, 'terca')" id="tab-terca">
+                <i class="fas fa-calendar-day" aria-hidden="true"></i> Terça-feira
+            </button>
+            <button class="tab-button" role="tab" aria-selected="false" onclick="openTab(event, 'quarta')" id="tab-quarta">
+                <i class="fas fa-calendar-day" aria-hidden="true"></i> Quarta-feira
+            </button>
+            <button class="tab-button" role="tab" aria-selected="false" onclick="openTab(event, 'quinta')" id="tab-quinta">
+                <i class="fas fa-calendar-day" aria-hidden="true"></i> Quinta-feira
+            </button>
+            <button class="tab-button" role="tab" aria-selected="false" onclick="openTab(event, 'sexta')" id="tab-sexta">
+                <i class="fas fa-calendar-day" aria-hidden="true"></i> Sexta-feira
+            </button>
+        </nav>
+
+        <main class="content fade-in" id="content-container" role="main" aria-live="polite">
+            <div class="loading">
+                <div class="spinner" aria-label="Carregando cronograma"></div>
+                <span class="sr-only">Carregando dados do cronograma...</span>
+            </div>
+        </main>
+
+        <div class="actions">
+            <button class="action-button whatsapp-button" onclick="sendReminderMessage()" aria-label="Enviar lembrete via WhatsApp">
+                <i class="fab fa-whatsapp" aria-hidden="true"></i> Enviar Lembrete
+            </button>
+            <button class="action-button whatsapp-button" onclick="shareViaWhatsApp()" aria-label="Compartilhar cronograma no WhatsApp">
+                <i class="fab fa-whatsapp" aria-hidden="true"></i> Compartilhar no WhatsApp
+            </button>
+            <button class="action-button print-button" onclick="printCurrentSchedule()" aria-label="Imprimir cronograma">
+                <i class="fas fa-print" aria-hidden="true"></i> Imprimir Cronograma
+            </button>
+            <button class="action-button edit-button" onclick="editSchedule()" aria-label="Editar cronograma">
+                <i class="fas fa-edit" aria-hidden="true"></i> Editar Cronograma
+            </button>
+            <button class="action-button save-button" onclick="saveSchedule()" aria-label="Salvar alterações">
+                <i class="fas fa-save" aria-hidden="true"></i> Salvar Alterações
+            </button>
+            <button class="action-button export-button" onclick="exportToCSV()" aria-label="Exportar para CSV">
+                <i class="fas fa-download" aria-hidden="true"></i> Exportar CSV
+            </button>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 Unidade de Saúde da Família Apipucos - Sistema desenvolvido para melhor atendimento à comunidade</p>
+        </footer>
+    </div>
+
+    <script>
+        // Performance monitoring
+        const performanceObserver = new PerformanceObserver((list) => {
+            for (const entry of list.getEntries()) {
+                console.log(`${entry.name}: ${entry.duration}ms`);
+            }
+        });
+        performanceObserver.observe({entryTypes: ['measure', 'navigation']});
+
+        // Global variables
+        let isEditing = false;
+
+        // Progress bar animation
+        function updateProgress(percentage) {
+            // Simplified version that doesn't depend on missing elements
+            console.log('Progress:', percentage + '%');
+        }
+
+        // Enhanced error handling
+        function handleError(error, context = '') {
+            console.error(`Erro ${context}:`, error);
+            const container = document.getElementById('content-container');
+            if (container) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #dc3545; margin-bottom: 20px;"></i>
+                        <h3>Ops! Algo deu errado</h3>
+                        <p>Não foi possível carregar o cronograma. Por favor, recarregue a página.</p>
+                        <button onclick="location.reload()" class="action-button" style="background: #007bff; color: white; margin-top: 20px;">
+                            <i class="fas fa-refresh"></i> Recarregar Página
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Enhanced data loading with caching
+        async function loadScheduleData() {
+            try {
+                console.log('Iniciando carregamento de dados...');
+                
+                console.log('Carregando dados do arquivo JSON...');
+                
+                // Try to fetch the data
+                const response = await fetch('cronograma-dados.json');
+                console.log('Resposta do fetch:', response);
+                
+                // Check if response is ok
+                if (!response.ok) {
+                    console.error('Erro na resposta HTTP:', response.status, response.statusText);
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                console.log('Processando dados JSON...');
+                const data = await response.json();
+                console.log('Dados carregados com sucesso:', data);
+                
+                return data;
+            } catch (error) {
+                console.error('Erro detalhado ao carregar dados:', error);
+                handleError(error, 'ao carregar dados');
+                return null;
+            }
+        }
+
+        // Enhanced tab rendering with accessibility
+        function renderTabContent(tabName, container) {
+            console.log('=== renderTabContent called ===');
+            console.log('tabName:', tabName);
+            console.log('container:', container);
+            console.log('scheduleData:', window.scheduleData);
+            
+            if (!window.scheduleData) {
+                console.log('Dados não disponíveis para renderização');
+                if (container) {
+                    container.innerHTML = '<p>Dados não disponíveis</p>';
+                }
+                return;
+            }
+
+            if (container) {
+                container.classList.add('fade-in');
+            }
+            
+            if (tabName === 'resumo') {
+                console.log('Renderizando resumo da semana');
+                if (container) {
+                    renderWeeklySummary(container);
+                }
+            } else {
+                console.log('Renderizando cronograma diário:', tabName);
+                if (container) {
+                    renderDaySchedule(tabName, container);
+                }
+            }
+            console.log('=== renderTabContent finished ===');
+        }
+
+        // Enhanced weekly summary
+        function renderWeeklySummary(container) {
+            console.log('=== renderWeeklySummary called ===');
+            console.log('container:', container);
+            console.log('scheduleData:', window.scheduleData);
+            
+            const days = ['segunda', 'terca', 'quarta', 'quinta', 'sexta'];
+            let content = `
+                <div class="header-info">
+                    <h2><i class="fas fa-calendar-week"></i> Resumo Semanal</h2>
+                    <p>Visão geral dos horários de funcionamento da USF Apipucos</p>
+                </div>
+            `;
+
+            // Add summary table - showing professionals by day periods (morning and afternoon)
+            content += `
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">Profissional</th>
+                            <th colspan="2">Segunda-feira</th>
+                            <th colspan="2">Terça-feira</th>
+                            <th colspan="2">Quarta-feira</th>
+                            <th colspan="2">Quinta-feira</th>
+                            <th colspan="2">Sexta-feira</th>
+                        </tr>
+                        <tr>
+                            <th>Manhã</th>
+                            <th>Tarde</th>
+                            <th>Manhã</th>
+                            <th>Tarde</th>
+                            <th>Manhã</th>
+                            <th>Tarde</th>
+                            <th>Manhã</th>
+                            <th>Tarde</th>
+                            <th>Manhã</th>
+                            <th>Tarde</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Dr. Rubens Cavalcanti</strong></td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dr. Felipe Jacobovitz (R1)</strong></td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">-</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">-</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">-</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">-</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">-</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dra. Sabrynna Mayara (R2)</strong></td>
+                            <td contenteditable="true">-</td>
+                            <td contenteditable="true">-</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">-</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">-</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">-</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">-</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dr. Marcos Augusto</strong></td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Enf. Clariane Falcão</strong></td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Estudo</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Enf. Tharcia Bezerra</strong></td>
+                            <td contenteditable="true">Coleta</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Coleta</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Coleta</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Coleta</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Coleta</td>
+                            <td contenteditable="true">Atendimento</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Téc. Enf. Carmen Verônica</strong></td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Téc. Enf. (Suporte)</strong></td>
+                            <td contenteditable="true">Coleta</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Coleta</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Coleta</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Coleta</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Coleta</td>
+                            <td contenteditable="true">Atendimento</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dra. Loala Lindoso</strong></td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dra. Sania Buonora</strong></td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                            <td contenteditable="true">Atendimento</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Agentes de Saúde</strong></td>
+                            <td contenteditable="true">Visitas</td>
+                            <td contenteditable="true">Visitas</td>
+                            <td contenteditable="true">Visitas</td>
+                            <td contenteditable="true">Visitas</td>
+                            <td contenteditable="true">Visitas</td>
+                            <td contenteditable="true">Visitas</td>
+                            <td contenteditable="true">Visitas</td>
+                            <td contenteditable="true">Visitas</td>
+                            <td contenteditable="true">Reunião</td>
+                            <td contenteditable="true">Atividades</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="legend" style="margin-top: 30px;">
+                    <h3><i class="fas fa-palette"></i> Legenda de Cores</h3>
+                    <div class="legend-grid">
+                        <div class="legend-item">
+                            <div class="legend-color lunch" onclick="applyColor(this, 'lunch')"></div>
+                            <span>Horário de Almoço</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color collection" onclick="applyColor(this, 'collection')"></div>
+                            <span>Coleta de Exames</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color study-day" onclick="applyColor(this, 'study-day')"></div>
+                            <span>Dia de Estudo</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color vacancy" onclick="applyColor(this, 'vacancy')"></div>
+                            <span>Vagas Disponíveis</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color dental" onclick="applyColor(this, 'dental')"></div>
+                            <span>Atendimento Odontológico</span>
+                        </div>
+                        <!-- Novas especialidades -->
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #FFB6C1;" onclick="applyColor(this, 'women-health')"></div>
+                            <span>Saúde da Mulher</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #89CFF0;" onclick="applyColor(this, 'pediatrics')"></div>
+                            <span>Pediatria</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #98FB98;" onclick="applyColor(this, 'general-practitioner')"></div>
+                            <span>Clínico Geral</span>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <button class="action-button edit-button" onclick="clearColors()" style="background: #dc3545; color: white;">
+                            <i class="fas fa-eraser"></i> Limpar Cores
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="professionals-section" style="margin-top: 30px;">
+                    <h3><i class="fas fa-user-md"></i> Profissionais da Unidade</h3>
+                    <div class="professionals-grid" style="display: flex; flex-wrap: wrap; gap: 20px;">
+                        <div class="professional-category" style="flex: 1; min-width: 200px;">
+                            <h4>Médicos</h4>
+                            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                <span style="background: #e9ecef; padding: 5px 10px; border-radius: 5px;">Dr. Rubens Cavalcanti</span>
+                                <span style="background: #e9ecef; padding: 5px 10px; border-radius: 5px;">Dr. Marcos Augusto</span>
+                                <span style="background: #e9ecef; padding: 5px 10px; border-radius: 5px;">Dra. Loala Lindoso</span>
+                                <span style="background: #e9ecef; padding: 5px 10px; border-radius: 5px;">Dra. Sania Buonora</span>
+                            </div>
+                        </div>
+                        <div class="professional-category" style="flex: 1; min-width: 200px;">
+                            <h4>Residentes</h4>
+                            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                <span style="background: #e9ecef; padding: 5px 10px; border-radius: 5px;">Dr. Felipe Jacobovitz</span>
+                                <span style="background: #e9ecef; padding: 5px 10px; border-radius: 5px;">Dra. Sabrynna Mayara</span>
+                            </div>
+                        </div>
+                        <div class="professional-category" style="flex: 1; min-width: 200px;">
+                            <h4>Enfermeiros</h4>
+                            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                <span style="background: #e9ecef; padding: 5px 10px; border-radius: 5px;">Enf. Clariane Falcão</span>
+                                <span style="background: #e9ecef; padding: 5px 10px; border-radius: 5px;">Enf. Tharcia Bezerra</span>
+                            </div>
+                        </div>
+                        <div class="professional-category" style="flex: 1; min-width: 200px;">
+                            <h4>Técnicos de Enfermagem</h4>
+                            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                <span style="background: #e9ecef; padding: 5px 10px; border-radius: 5px;">Téc. Enf. Carmen Verônica</span>
+                                <span style="background: #e9ecef; padding: 5px 10px; border-radius: 5px;">Téc. Enf. (Suporte)</span>
+                            </div>
+                        </div>
+                        <div class="professional-category" style="flex: 1; min-width: 200px;">
+                            <h4>Agentes de Saúde</h4>
+                            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                <span style="background: #e9ecef; padding: 5px 10px; border-radius: 5px;">Débora Ellen</span>
+                                <span style="background: #e9ecef; padding: 5px 10px; border-radius: 5px;">Margareth Lopes</span>
+                                <span style="background: #e9ecef; padding: 5px 10px; border-radius: 5px;">Simone Firmino</span>
+                                <span style="background: #e9ecef; padding: 5px 10px; border-radius: 5px;">Jadilene Paz</span>
+                                <span style="background: #e9ecef; padding: 5px 10px; border-radius: 5px;">Sandra Cristina</span>
+                                <span style="background: #e9ecef; padding: 5px 10px; border-radius: 5px;">Sandra Tavares</span>
+                                <span style="background: #e9ecef; padding: 5px 10px; border-radius: 5px;">Márcia Araújo</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            console.log('Generated content length:', content.length);
+            if (container) {
+                container.innerHTML = content;
+                console.log('Content set to container');
+            } else {
+                console.log('No container to set content to');
+            }
+            console.log('=== renderWeeklySummary finished ===');
+        }
+
+        // Enhanced day schedule rendering
+        function renderDaySchedule(dayName, container) {
+            const dayData = window.scheduleData[dayName];
+            if (!dayData) {
+                container.innerHTML = '<p>Dados não disponíveis para este dia</p>';
+                return;
+            }
+
+            let content = `
+                <div class="header-info">
+                    <h2><i class="fas fa-calendar-day"></i> ${dayData.title}</h2>
+                    <p class="editable-date" contenteditable="false">${dayData.date}</p>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Horário</th>
+                            <th>Dr. Rubens</th>
+                            <th>Dr. Felipe (R1)</th>
+                            <th>Dra. Sabrynna (R2)</th>
+                            <th>Dr. Marcos</th>
+                            <th>Enf. Clariane</th>
+                            <th>Enf. Tharcia</th>
+                            <th>Téc. Carmen</th>
+                            <th>Téc. Suporte</th>
+                            <th>Dra. Loala</th>
+                            <th>Dra. Sania</th>
+                            <th>Agentes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            // Verificar se o array schedule existe antes de iterar
+            if (dayData.schedule && dayData.schedule.length > 0) {
+                dayData.schedule.forEach(slot => {
+                    content += `
+                        <tr>
+                            <td><strong>${slot.horario}</strong></td>
+                            <td contenteditable="false" class="${getCellClass(slot.drA)}">${slot.drA}</td>
+                            <td contenteditable="false" class="${getCellClass(slot.resA)}">${slot.resA}</td>
+                            <td contenteditable="false" class="${getCellClass(slot.resB)}">${slot.resB}</td>
+                            <td contenteditable="false" class="${getCellClass(slot.drB)}">${slot.drB}</td>
+                            <td contenteditable="false" class="${getCellClass(slot.enfC)}">${slot.enfC}</td>
+                            <td contenteditable="false" class="${getCellClass(slot.enfD)}">${slot.enfD}</td>
+                            <td contenteditable="false" class="${getCellClass(slot.tecL)}">${slot.tecL}</td>
+                            <td contenteditable="false" class="${getCellClass(slot.tecM)}">${slot.tecM}</td>
+                            <td contenteditable="false" class="${getCellClass(slot.draE)}">${slot.draE}</td>
+                            <td contenteditable="false" class="${getCellClass(slot.draF)}">${slot.draF}</td>
+                            <td contenteditable="false" class="${getCellClass(slot.agentes)}">${slot.agentes}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                // Caso o schedule esteja vazio
+                content += `
+                    <tr>
+                        <td colspan="12">Nenhum horário disponível para este dia</td>
+                    </tr>
+                `;
+            }
+
+            content += '</tbody></table>';
+            container.innerHTML = content;
+        }
+
+        // Enhanced cell class detection
+        function getCellClass(cellContent) {
+            if (!cellContent) return '';
+            const content = cellContent.toLowerCase();
+            if (content.includes('almoço')) return 'lunch';
+            if (content.includes('coleta')) return 'collection';
+            if (content.includes('estudo')) return 'study-day';
+            if (content.includes('vaga')) return 'vacancy';
+            if (content.includes('odonto')) return 'dental';
+            return '';
+        }
+
+        // Enhanced tab switching with accessibility
+        function openTab(evt, tabName) {
+            console.log('Abrindo aba:', tabName, 'evento:', evt);
+            // Update progress
+            updateProgress(0);
+            
+            // Remove active class from all tabs
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+                button.setAttribute('aria-selected', 'false');
+            });
+
+            // Add active class to current tab
+            const currentTab = evt.currentTarget || document.getElementById(`tab-${tabName}`);
+            if (currentTab) {
+                console.log('Ativando aba:', currentTab);
+                currentTab.classList.add('active');
+                currentTab.setAttribute('aria-selected', 'true');
+            } else {
+                console.log('Aba não encontrada para:', tabName);
+            }
+
+            // Render content
+            const container = document.getElementById('content-container');
+            if (container && window.scheduleData) {
+                console.log('Renderizando conteúdo para:', tabName);
+                renderTabContent(tabName, container);
+                updateProgress(100);
+            } else {
+                console.log('Não é possível renderizar conteúdo - container:', container, 'scheduleData:', window.scheduleData);
+            }
+
+            // Announce to screen readers
+            const announcement = `Exibindo ${tabName === 'resumo' ? 'resumo da semana' : tabName + '-feira'}`;
+            announceToScreenReader(announcement);
+        }
+
+        // Screen reader announcements
+        function announceToScreenReader(message) {
+            const announcement = document.createElement('div');
+            announcement.setAttribute('aria-live', 'polite');
+            announcement.setAttribute('aria-atomic', 'true');
+            announcement.className = 'sr-only';
+            announcement.textContent = message;
+            document.body.appendChild(announcement);
+            
+            setTimeout(() => {
+                document.body.removeChild(announcement);
+            }, 1000);
+        }
+
+        // Enhanced editing functionality
+        function editSchedule() {
+            if (isEditing) {
+                announceToScreenReader('Modo de edição já está ativo');
+                return;
+            }
+
+            isEditing = true;
+            const editableCells = document.querySelectorAll('td[contenteditable="false"]');
+            editableCells.forEach(cell => {
+                cell.setAttribute('contenteditable', 'true');
+                cell.setAttribute('aria-label', 'Campo editável');
+            });
+
+            const editableDates = document.querySelectorAll('.editable-date');
+            editableDates.forEach(date => {
+                date.setAttribute('contenteditable', 'true');
+                date.setAttribute('aria-label', 'Data editável');
+            });
+
+            announceToScreenReader('Modo de edição ativado. Use Tab para navegar entre os campos editáveis.');
+            
+            // Show visual feedback
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #28a745;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.innerHTML = '<i class="fas fa-edit"></i> Modo de edição ativado';
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 3000);
+        }
+
+        // Enhanced save functionality
+        function saveSchedule() {
+            if (!isEditing) {
+                announceToScreenReader('Nenhuma edição para salvar');
+                return;
+            }
+
+            try {
+                const editedData = { schedules: {} };
+                const days = ['segunda', 'terca', 'quarta', 'quinta', 'sexta'];
+                
+                // Save current tab data
+                const activeTab = document.querySelector('.tab-button.active');
+                if (activeTab) {
+                    const tabText = activeTab.textContent.toLowerCase();
+                    const currentDay = days.find(day => tabText.includes(day.replace('terca', 'terça')));
+                    
+                    if (currentDay && window.scheduleData[currentDay]) {
+                        editedData.schedules[currentDay] = JSON.parse(JSON.stringify(window.scheduleData[currentDay]));
+                        
+                        // Update with edited values
+                        const rows = document.querySelectorAll('tbody tr');
+                        rows.forEach((row, index) => {
+                            const cells = row.querySelectorAll('td[contenteditable="true"]');
+                            if (cells.length > 0 && editedData.schedules[currentDay].schedule[index]) {
+                                const schedule = editedData.schedules[currentDay].schedule[index];
+                                const keys = ['drA', 'resA', 'resB', 'drB', 'enfC', 'enfD', 'tecL', 'tecM', 'draE', 'draF', 'agentes'];
+                                
+                                cells.forEach((cell, cellIndex) => {
+                                    if (keys[cellIndex]) {
+                                        schedule[keys[cellIndex]] = cell.textContent.trim();
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+
+                // Save to localStorage
+                localStorage.setItem('editedSchedule', JSON.stringify(editedData));
+                
+                // Update global data
+                Object.assign(window.scheduleData, editedData.schedules);
+                
+                // Disable editing
+                isEditing = false;
+                const editableCells = document.querySelectorAll('td[contenteditable="true"]');
+                editableCells.forEach(cell => {
+                    cell.setAttribute('contenteditable', 'false');
+                    cell.removeAttribute('aria-label');
+                });
+
+                announceToScreenReader('Cronograma salvo com sucesso');
+                
+                // Show success notification
+                showNotification('Cronograma salvo com sucesso!', 'success');
+                
+            } catch (error) {
+                handleError(error, 'ao salvar cronograma');
+                showNotification('Erro ao salvar cronograma', 'error');
+            }
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            const colors = {
+                success: '#28a745',
+                error: '#dc3545',
+                info: '#007bff',
+                warning: '#ffc107'
+            };
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${colors[type]};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+                max-width: 300px;
+            `;
+            
+            const icon = type === 'success' ? 'check' : type === 'error' ? 'times' : 'info';
+            notification.innerHTML = `<i class="fas fa-${icon}"></i> ${message}`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideOut 0.3s ease';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }
+            }, 3000);
+        }
+
+        // Enhanced WhatsApp sharing
+        function shareViaWhatsApp() {
+            try {
+                const activeTab = document.querySelector('.tab-button.active');
+                const tabName = activeTab ? activeTab.textContent.trim() : 'Cronograma';
+                
+                // Check for special dates/occasions
+                const today = new Date();
+                const month = today.getMonth() + 1; // Months are 0-indexed
+                const day = today.getDate();
+                
+                // Special messages for different occasions
+                let specialMessage = '';
+                
+                // Outubro Rosa (October Pink) - October
+                if (month === 10) {
+                    specialMessage = `🎗️ *Outubro Rosa - Prevenção do Câncer de Mama*\n\n`;
+                    specialMessage += `Este mês é dedicado à conscientização sobre a prevenção do câncer de mama.\n`;
+                    specialMessage += `Agende sua mamografia e cuide da sua saúde!\n\n`;
+                }
+                // Other special occasions can be added here
+                // Example: November - Diabetes awareness, etc.
+                
+                // Default message with employee of the week information
+                let employeeOfWeekMessage = `👥 *Funcionários da Semana*\n\n`;
+                employeeOfWeekMessage += `Esta semana nossos profissionais estão dedicados ao atendimento e cuidado com a comunidade.\n`;
+                employeeOfWeekMessage += `• Dr. Rubens Cavalcanti - Clínico Geral\n`;
+                employeeOfWeekMessage += `• Enf. Clariane Falcão - Enfermagem\n`;
+                employeeOfWeekMessage += `• Téc. Enf. Carmen Verônica - Suporte\n`;
+                employeeOfWeekMessage += `• Agentes de Saúde - Visitas Domiciliares\n\n`;
+                
+                let shareText = `🏥 *Cronograma USF Apipucos*\n`;
+                shareText += `📅 *${tabName}*\n\n`;
+                
+                // Add special message or employee of the week message
+                if (specialMessage) {
+                    shareText += specialMessage;
+                } else {
+                    shareText += employeeOfWeekMessage;
+                }
+                
+                if (tabName.includes('Resumo')) {
+                    shareText += `📋 *Horário de Funcionamento:*\n`;
+                    shareText += `🚪 06:30 - Início do agendamento\n`;
+                    shareText += `🕖 07:00 - Início dos atendimentos\n`;
+                    shareText += `🕐 17:00 - Encerramento\n\n`;
+                    shareText += `👨‍⚕️ *Profissionais disponíveis:*\n`;
+                    shareText += `• Médicos clínicos\n`;
+                    shareText += `• Residentes\n`;
+                    shareText += `• Enfermeiros\n`;
+                    shareText += `• Técnicos de enfermagem\n`;
+                    shareText += `• Agentes de saúde\n\n`;
+                } else {
+                    const table = document.querySelector('table tbody');
+                    if (table) {
+                        shareText += `⏰ *Horários de hoje:*\n`;
+                        const rows = table.querySelectorAll('tr');
+                        let count = 0;
+                        rows.forEach(row => {
+                            if (count < 5) { // Limit to first 5 entries
+                                const timeCell = row.querySelector('td:first-child');
+                                if (timeCell) {
+                                    shareText += `${timeCell.textContent.trim()}\n`;
+                                    count++;
+                                }
+                            }
+                        });
+                        if (rows.length > 5) {
+                            shareText += `... e mais ${rows.length - 5} horários\n\n`;
+                        }
+                    }
+                }
+                
+                shareText += `📍 *USF Apipucos*\n`;
+                shareText += `📱 Acesse o cronograma completo: ${window.location.href}`;
+                
+                const encodedText = encodeURIComponent(shareText);
+                const whatsappUrl = `https://wa.me/?text=${encodedText}`;
+                window.open(whatsappUrl, '_blank');
+                
+                announceToScreenReader('Abrindo WhatsApp para compartilhar cronograma');
+                
+            } catch (error) {
+                handleError(error, 'ao compartilhar no WhatsApp');
+            }
+        }
+
+        // Enhanced reminder functionality
+        function sendReminderMessage() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 90%;">
+                    <h3 style="margin-top: 0; color: #007bff;">
+                        <i class="fab fa-whatsapp"></i> Enviar Lembrete via WhatsApp
+                    </h3>
+                    <form id="reminder-form">
+                        <div style="margin-bottom: 15px;">
+                            <label for="patient-name" style="display: block; margin-bottom: 5px; font-weight: bold;">Nome do Paciente:</label>
+                            <input type="text" id="patient-name" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label for="appointment-date" style="display: block; margin-bottom: 5px; font-weight: bold;">Data da Consulta:</label>
+                            <input type="date" id="appointment-date" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label for="appointment-time" style="display: block; margin-bottom: 5px; font-weight: bold;">Horário:</label>
+                            <input type="time" id="appointment-time" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label for="doctor-name" style="display: block; margin-bottom: 5px; font-weight: bold;">Profissional:</label>
+                            <select id="doctor-name" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                                <option value="">Selecione o profissional</option>
+                                <option value="Dr. Rubens Cavalcanti">Dr. Rubens Cavalcanti</option>
+                                <option value="Dr. Marcos Augusto">Dr. Marcos Augusto</option>
+                                <option value="Dr. Felipe Jacobovitz">Dr. Felipe Jacobovitz</option>
+                                <option value="Dra. Sabrynna Mayara">Dra. Sabrynna Mayara</option>
+                                <option value="Dra. Loala Lindoso">Dra. Loala Lindoso</option>
+                                <option value="Dra. Sania Buonora">Dra. Sania Buonora</option>
+                                <option value="Enf. Clariane Falcão">Enf. Clariane Falcão</option>
+                                <option value="Enf. Tharcia Bezerra">Enf. Tharcia Bezerra</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <label for="phone-number" style="display: block; margin-bottom: 5px; font-weight: bold;">Telefone (com DDD):</label>
+                            <input type="tel" id="phone-number" placeholder="(81) 99999-9999" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        </div>
+                        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                            <button type="button" onclick="closeReminderModal()" style="padding: 10px 20px; border: 1px solid #ddd; background: white; border-radius: 5px; cursor: pointer;">
+                                Cancelar
+                            </button>
+                            <button type="submit" style="padding: 10px 20px; border: none; background: #25D366; color: white; border-radius: 5px; cursor: pointer;">
+                                <i class="fab fa-whatsapp"></i> Enviar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Focus on first input
+            setTimeout(() => {
+                document.getElementById('patient-name').focus();
+            }, 100);
+            
+            // Handle form submission
+            document.getElementById('reminder-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const patientName = document.getElementById('patient-name').value;
+                const appointmentDate = document.getElementById('appointment-date').value;
+                const appointmentTime = document.getElementById('appointment-time').value;
+                const doctorName = document.getElementById('doctor-name').value;
+                const phoneNumber = document.getElementById('phone-number').value;
+                
+                const formattedDate = new Date(appointmentDate).toLocaleDateString('pt-BR');
+                
+                // Updated message with the new format
+                let message = `🌿 *Lembrete de Consulta – USF Apipucos* 🌿\n\n`;
+                message += `👤 *Paciente:* ${patientName}\n`;
+                message += `📅 *Data:* ${formattedDate}\n`;
+                message += `🕒 *Horário:* Atendimento por ordem de chegada\n`;
+                message += `👨‍⚕️ *Profissional:* ${doctorName}\n\n`;
+                message += `📍 *Local:* Unidade de Saúde da Família Apipucos\n\n`;
+                message += `✨ *Orientações importantes:*\n\n`;
+                message += `Chegue com pelo menos 10 minutos de antecedência para seu atendimento com tranquilidade.\n\n`;
+                message += `Leve seus documentos pessoais e o cartão do SUS.\n\n\n`;
+                message += `🤝 *Em caso de dúvidas, fale com seu agente de saúde. Estamos aqui para cuidar de você.*`;
+                
+                const encodedMessage = encodeURIComponent(message);
+                let whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+                
+                if (phoneNumber) {
+                    const cleanPhone = phoneNumber.replace(/\D/g, '');
+                    if (cleanPhone.length >= 10) {
+                        whatsappUrl = `https://wa.me/55${cleanPhone}?text=${encodedMessage}`;
+                    }
+                }
+                
+                window.open(whatsappUrl, '_blank');
+                closeReminderModal();
+                showNotification('Lembrete enviado via WhatsApp!', 'success');
+            });
+        }
+
+        function closeReminderModal() {
+            const modal = document.querySelector('div[style*="position: fixed"]');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Enhanced print functionality
+        function printCurrentSchedule() {
+            const printContent = document.getElementById('content-container').innerHTML;
+            const printWindow = window.open('', '_blank');
+            
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="pt-BR">
+
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Cronograma USF Apipucos</title>
+                    <style>
+                        body { 
+                            font-family: Arial, sans-serif; 
+                            margin: 20px;
+                            color: #333;
+                        }
+                        table { 
+                            width: 100%; 
+                            border-collapse: collapse; 
+                            margin: 20px 0;
+                            page-break-inside: avoid;
+                        }
+                        th, td { 
+                            border: 1px solid #333; 
+                            padding: 8px; 
+                            text-align: center; 
+                            font-size: 12px;
+                        }
+                        th { 
+                            background-color: #f0f0f0; 
+                            font-weight: bold;
+                        }
+                        .header-info { 
+                            text-align: center; 
+                            margin-bottom: 20px; 
+                            page-break-after: avoid;
+                        }
+                        .header-info h2 {
+                            color: #007bff;
+                            margin-bottom: 10px;
+                        }
+                        .lunch-cell { background-color: #ffc107 !important; }
+                        .collection-cell { background-color: #28a745 !important; color: white !important; }
+                        .study-cell { background-color: #17a2b8 !important; color: white !important; }
+                        .vacancy-cell { background-color: #6f42c1 !important; color: white !important; }
+                        .dental-cell { background-color: #e83e8c !important; color: white !important; }
+                        @page {
+                            margin: 1cm;
+                            size: A4 landscape;
+                        }
+                        @media print {
+                            body { margin: 0; }
+                            .no-print { display: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h1 style="color: #007bff; margin: 0;">USF Apipucos</h1>
+                        <p style="margin: 5px 0;">Cronograma de Atendimento</p>
+                        <p style="margin: 5px 0; font-size: 12px;">Impresso em: ${new Date().toLocaleString('pt-BR')}</p>
+                    </div>
+                    ${printContent}
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.focus();
+            
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
+            
+            announceToScreenReader('Abrindo janela de impressão');
+        }
+
+        // New: Export to CSV functionality
+        function exportToCSV() {
+            try {
+                const activeTab = document.querySelector('.tab-button.active');
+                const tabText = activeTab ? activeTab.textContent.trim() : 'cronograma';
+                
+                let csvContent = "data:text/csv;charset=utf-8,";
+                csvContent += "Horário,Dr. Rubens,Dr. Felipe (R1),Dra. Sabrynna (R2),Dr. Marcos,Enf. Clariane,Enf. Tharcia,Téc. Carmen,Téc. Suporte,Dra. Loala,Dra. Sania,Agentes\n";
+                
+                const table = document.querySelector('table tbody');
+                if (table) {
+                    const rows = table.querySelectorAll('tr');
+                    rows.forEach(row => {
+                        const cells = row.querySelectorAll('td');
+                        const rowData = Array.from(cells).map(cell => {
+                            return '"' + cell.textContent.trim().replace(/"/g, '""') + '"';
+                        }).join(',');
+                        csvContent += rowData + "\n";
+                    });
+                }
+                
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", `cronograma-usf-apipucos-${tabText.toLowerCase().replace(/\s+/g, '-')}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showNotification('Arquivo CSV exportado com sucesso!', 'success');
+                
+            } catch (error) {
+                handleError(error, 'ao exportar CSV');
+                showNotification('Erro ao exportar arquivo CSV', 'error');
+            }
+        }
+
+        // Enhanced legend color changing
+        function changeLegendColor(colorClass) {
+            const newColor = prompt(`Digite a nova cor para ${colorClass} (formato hex, ex: #ff0000):`);
+            if (newColor && /^#[0-9A-F]{6}$/i.test(newColor)) {
+                const style = document.createElement('style');
+                style.textContent = `.${colorClass} { background-color: ${newColor} !important; }`;
+                document.head.appendChild(style);
+                
+                // Save to localStorage
+                const savedColors = JSON.parse(localStorage.getItem('legendColors') || '{}');
+                savedColors[colorClass] = newColor;
+                localStorage.setItem('legendColors', JSON.stringify(savedColors));
+                
+                showNotification('Cor da legenda atualizada!', 'success');
+            } else if (newColor) {
+                showNotification('Formato de cor inválido. Use formato hex (#000000)', 'error');
+            }
+        }
+
+        // Load saved colors
+        function loadSavedColors() {
+            const savedColors = JSON.parse(localStorage.getItem('legendColors') || '{}');
+            Object.entries(savedColors).forEach(([colorClass, color]) => {
+                const style = document.createElement('style');
+                style.textContent = `.${colorClass} { background-color: ${color} !important; }`;
+                document.head.appendChild(style);
+            });
+        }
+
+        // New function to apply colors to selected cells
+        let currentColorClass = '';
+
+        function applyColor(legendElement, colorClass) {
+            currentColorClass = colorClass;
+            
+            // Highlight the selected legend item
+            document.querySelectorAll('.legend-color').forEach(el => {
+                el.style.border = '2px solid #ddd';
+                el.style.transform = 'scale(1)';
+            });
+            legendElement.style.border = '2px solid #007bff';
+            legendElement.style.transform = 'scale(1.2)';
+            
+            // Show instruction
+            showNotification('Clique nas células da tabela para aplicar a cor. Clique novamente na legenda para desativar.', 'info');
+        }
+
+        function clearColors() {
+            // Remove all color classes from editable cells
+            const cells = document.querySelectorAll('td[contenteditable="true"]');
+            cells.forEach(cell => {
+                cell.className = cell.className.replace(/(lunch|collection|study-day|vacancy|dental)/g, '').trim();
+            });
+            
+            showNotification('Cores limpas com sucesso!', 'success');
+        }
+
+        // Add click event to editable cells for color painting
+        document.addEventListener('click', function(e) {
+            if (currentColorClass && e.target.hasAttribute('contenteditable') && e.target.getAttribute('contenteditable') === 'true') {
+                // Toggle the color class
+                if (e.target.classList.contains(currentColorClass)) {
+                    e.target.classList.remove(currentColorClass);
+                } else {
+                    // Remove any existing color classes
+                    e.target.className = e.target.className.replace(/(lunch|collection|study-day|vacancy|dental)/g, '').trim();
+                    // Add the new color class
+                    e.target.classList.add(currentColorClass);
+                }
+            }
+        });
+
+        // Keyboard navigation support
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+S to save
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveSchedule();
+            }
+            
+            // Ctrl+P to print
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                printCurrentSchedule();
+            }
+            
+            // Ctrl+E to edit
+            if (e.ctrlKey && e.key === 'e') {
+                e.preventDefault();
+                editSchedule();
+            }
+            
+            // Arrow keys for tab navigation
+            if (e.target.classList.contains('tab-button')) {
+                const tabs = Array.from(document.querySelectorAll('.tab-button'));
+                const currentIndex = tabs.indexOf(e.target);
+                
+                if (e.key === 'ArrowLeft' && currentIndex > 0) {
+                    e.preventDefault();
+                    tabs[currentIndex - 1].focus();
+                    tabs[currentIndex - 1].click();
+                } else if (e.key === 'ArrowRight' && currentIndex < tabs.length - 1) {
+                    e.preventDefault();
+                    tabs[currentIndex + 1].focus();
+                    tabs[currentIndex + 1].click();
+                }
+            }
+        });
+
+        // Initialize application
+        window.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 Aplicação iniciando...');
+            
+            try {
+                // Load from JSON file directly
+                console.log('Carregando dados do arquivo JSON...');
+                window.scheduleData = await loadScheduleData();
+                console.log('✅ Dados do arquivo JSON carregados, dados:', window.scheduleData);
+                
+                if (window.scheduleData) {
+                    console.log('Dados disponíveis, renderizando conteúdo...');
+                    // Show first tab by default (resumo)
+                    // Use a more direct approach without setTimeout
+                    const resumoButton = document.getElementById('tab-resumo');
+                    if (resumoButton) {
+                        console.log('Encontrado botão resumo, ativando...');
+                        resumoButton.classList.add('active');
+                        // Create a proper event object for openTab
+                        const eventObj = {
+                            currentTarget: resumoButton
+                        };
+                        openTab(eventObj, 'resumo');
+                    } else {
+                        console.log('Botão resumo não encontrado, tentando primeiro botão...');
+                        // Fallback - try to find first button
+                        const firstButton = document.querySelector('.tab-button');
+                        if (firstButton) {
+                            console.log('Encontrado primeiro botão, ativando...');
+                            firstButton.classList.add('active');
+                            const eventObj = {
+                                currentTarget: firstButton
+                            };
+                            openTab(eventObj, 'resumo');
+                        } else {
+                            console.log('Nenhum botão encontrado!');
+                        }
+                    }
+                    
+                    // Register service worker for PWA
+                    if ('serviceWorker' in navigator) {
+                        try {
+                            navigator.serviceWorker.register('./sw.js')
+                                .then(() => console.log('✅ Service Worker registrado'))
+                                .catch(error => console.log('ℹ️ Service Worker não disponível', error));
+                        } catch (error) {
+                            console.log('ℹ️ Service Worker não disponível');
+                        }
+                    }
+                    
+                    // Initialize schedule features (timeline marker and square functionality)
+                    initializeScheduleFeatures();
+                } else {
+                    console.log('❌ Nenhum dado disponível para carregar');
+                    throw new Error('Falha ao carregar dados do cronograma');
+                }
+                
+            } catch (error) {
+                console.error('❌ Erro ao inicializar:', error);
+                handleError(error, 'ao inicializar o sistema');
+                // Don't override the content container with error message, just log it
+                console.error('Erro ao carregar o sistema. Tente recarregar a página.');
+            }
+        });
+
+        // Performance monitoring
+        window.addEventListener('load', () => {
+            if ('performance' in window) {
+                const loadTime = performance.now();
+                console.log(`⚡ Página carregada em ${loadTime.toFixed(2)}ms`);
+            }
+        });
+
+        // Offline detection
+        window.addEventListener('online', () => {
+            showNotification('Conexão restaurada!', 'success');
+        });
+
+        window.addEventListener('offline', () => {
+            showNotification('Modo offline ativado', 'warning');
+        });
+
+        // Test data loading
+        window.testDataLoading = async function() {
+            console.log('Testing data loading...');
+            try {
+                const response = await fetch('cronograma-dados.json');
+                console.log('Test response:', response);
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Test data loaded successfully:', data);
+                } else {
+                    console.error('Test failed to load data:', response.status);
+                }
+            } catch (error) {
+                console.error('Test error:', error);
+            }
+        };
+
+        // Run test immediately
+        setTimeout(() => {
+            window.testDataLoading();
+        }, 2000);
+
+        // Function to update the timeline marker position based on current time
+        function updateTimelineMarker() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            
+            // Only show timeline during working hours (7:00 - 17:00)
+            if (currentHour < 7 || currentHour >= 17) {
+                removeTimelineMarker();
+                return;
+            }
+            
+            // Calculate position based on time (7:00 = 0%, 17:00 = 100%)
+            const totalMinutes = (currentHour - 7) * 60 + currentMinute;
+            const percentage = (totalMinutes / (10 * 60)) * 100; // 10 hours total
+            
+            createOrUpdateTimelineMarker(percentage);
+        }
+        
+        // Function to create or update the timeline marker
+        function createOrUpdateTimelineMarker(percentage) {
+            let marker = document.getElementById('timeline-marker');
+            
+            if (!marker) {
+                marker = document.createElement('div');
+                marker.id = 'timeline-marker';
+                marker.className = 'timeline-marker';
+                document.body.appendChild(marker);
+            }
+            
+            // Position the marker relative to the content area
+            const contentContainer = document.querySelector('.content');
+            if (contentContainer) {
+                const containerRect = contentContainer.getBoundingClientRect();
+                const table = contentContainer.querySelector('table');
+                
+                if (table) {
+                    const tableRect = table.getBoundingClientRect();
+                    // Position marker relative to table
+                    marker.style.position = 'absolute';
+                    marker.style.top = `${containerRect.top + (tableRect.height * percentage / 100)}px`;
+                    marker.style.left = `${tableRect.left}px`;
+                    marker.style.width = `${tableRect.width}px`;
+                    marker.style.zIndex = '100';
+                }
+            }
+        }
+        
+        // Function to remove the timeline marker
+        function removeTimelineMarker() {
+            const marker = document.getElementById('timeline-marker');
+            if (marker) {
+                marker.remove();
+            }
+        }
+        
+        // Function to handle schedule square interactions
+        function setupScheduleSquareFunctionality() {
+            // Add click event to all schedule cells
+            document.addEventListener('click', function(e) {
+                // Check if clicked element is a schedule cell
+                if (e.target.tagName === 'TD' && e.target.parentElement.parentElement.tagName === 'TBODY') {
+                    const cell = e.target;
+                    
+                    // If we're in color painting mode, apply the selected color
+                    if (window.currentPaintingColor) {
+                        // Remove any existing custom color classes
+                        const colorClasses = Array.from(cell.classList).filter(cls => cls.startsWith('custom-color-'));
+                        colorClasses.forEach(cls => cell.classList.remove(cls));
+                        
+                        // Add the new custom color class
+                        cell.classList.add(`custom-color-${window.currentPaintingColor.id}`);
+                        cell.style.backgroundColor = window.currentPaintingColor.color;
+                        
+                        // If the cell has text, ensure it's readable
+                        if (cell.textContent.trim()) {
+                            const bgColor = window.currentPaintingColor.color;
+                            // Simple brightness check for text color
+                            const r = parseInt(bgColor.slice(1, 3), 16);
+                            const g = parseInt(bgColor.slice(3, 5), 16);
+                            const b = parseInt(bgColor.slice(5, 7), 16);
+                            const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+                            cell.style.color = brightness > 128 ? '#000000' : '#ffffff';
+                        }
+                        
+                        return;
+                    }
+                    
+                    // Highlight the clicked cell
+                    document.querySelectorAll('td').forEach(td => {
+                        td.style.outline = '';
+                    });
+                    
+                    cell.style.outline = '2px solid #007bff';
+                    cell.style.outlineOffset = '-2px';
+                    
+                    // Show notification with cell info
+                    const timeCell = cell.parentElement.querySelector('td:first-child');
+                    const timeInfo = timeCell ? timeCell.textContent : 'Horário desconhecido';
+                    
+                    showNotification(`Célula selecionada: ${timeInfo}`, 'info');
+                }
+            });
+        }
+        
+        // Custom color palette functionality
+        window.customColors = [
+            { id: 'baby-blue', name: 'Azul Bebê', color: '#89CFF0' },
+            { id: 'light-green', name: 'Verde Claro', color: '#90EE90' },
+            { id: 'light-pink', name: 'Rosa Claro', color: '#FFB6C1' },
+            { id: 'light-yellow', name: 'Amarelo Claro', color: '#FFFFE0' },
+            { id: 'light-purple', name: 'Roxo Claro', color: '#D8BFD8' },
+            { id: 'light-orange', name: 'Laranja Claro', color: '#FFD580' },
+            // Novas especialidades
+            { id: 'women-health', name: 'Saúde da Mulher', color: '#FFB6C1' },
+            { id: 'pediatrics', name: 'Pediatria', color: '#89CFF0' },
+            { id: 'general-practitioner', name: 'Clínico Geral', color: '#98FB98' }
+        ];
+        
+        window.currentPaintingColor = null;
+        
+        // Function to create curtain panel for color palette
+        function createColorCurtainPanel() {
+            // Create curtain toggle button
+            const toggleButton = document.createElement('button');
+            toggleButton.className = 'curtain-toggle';
+            toggleButton.innerHTML = '<i class="fas fa-palette"></i>';
+            toggleButton.title = 'Abrir paleta de cores';
+            document.body.appendChild(toggleButton);
+            
+            // Create curtain panel
+            const curtainPanel = document.createElement('div');
+            curtainPanel.className = 'curtain-panel';
+            curtainPanel.id = 'color-curtain-panel';
+            curtainPanel.innerHTML = `
+                <div class="curtain-header">
+                    <h3><i class="fas fa-palette"></i> Paleta de Cores</h3>
+                    <button class="curtain-close">&times;</button>
+                </div>
+                <div class="color-picker-container">
+                    <div class="color-picker-title">
+                        <i class="fas fa-fill"></i> Cores Predefinidas
+                    </div>
+                    <div id="custom-colors-container">
+                        ${window.customColors.map(color => `
+                            <div class="custom-color" 
+                                 data-color-id="${color.id}" 
+                                 data-color-value="${color.color}"
+                                 title="${color.name}"
+                                 style="background-color: ${color.color}">
+                            </div>
+                        `).join('')}
+                        <button class="action-button edit-button" id="add-custom-color" style="margin-left: 10px; padding: 5px 10px; font-size: 12px;">
+                            <i class="fas fa-plus"></i> Adicionar Cor
+                        </button>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button class="action-button" id="clear-custom-colors" style="background: #dc3545; color: white; padding: 8px 15px;">
+                        <i class="fas fa-eraser"></i> Limpar Cores Personalizadas
+                    </button>
+                    <button class="action-button" id="exit-paint-mode" style="background: #6c757d; color: white; padding: 8px 15px; margin-left: 10px;">
+                        <i class="fas fa-times"></i> Sair do Modo Pintura
+                    </button>
+                </div>
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #dee2e6;">
+                    <p><strong>Instruções:</strong></p>
+                    <ol style="font-size: 12px; padding-left: 20px;">
+                        <li>Selecione uma cor clicando nela</li>
+                        <li>Clique nas células do cronograma para pintar</li>
+                        <li>Clique em "Sair do Modo Pintura" quando terminar</li>
+                    </ol>
+                </div>
+            `;
+            document.body.appendChild(curtainPanel);
+            
+            // Add event listeners
+            toggleButton.addEventListener('click', function() {
+                curtainPanel.classList.toggle('open');
+                toggleButton.innerHTML = curtainPanel.classList.contains('open') ? 
+                    '<i class="fas fa-times"></i>' : '<i class="fas fa-palette"></i>';
+                toggleButton.title = curtainPanel.classList.contains('open') ? 
+                    'Fechar paleta de cores' : 'Abrir paleta de cores';
+            });
+            
+            document.querySelector('.curtain-close').addEventListener('click', function() {
+                curtainPanel.classList.remove('open');
+                toggleButton.innerHTML = '<i class="fas fa-palette"></i>';
+                toggleButton.title = 'Abrir paleta de cores';
+            });
+            
+            document.getElementById('custom-colors-container').addEventListener('click', function(e) {
+                if (e.target.classList.contains('custom-color')) {
+                    // Remove active class from all colors
+                    document.querySelectorAll('.custom-color').forEach(el => {
+                        el.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked color
+                    e.target.classList.add('active');
+                    
+                    // Set current painting color
+                    const colorId = e.target.getAttribute('data-color-id');
+                    const colorValue = e.target.getAttribute('data-color-value');
+                    window.currentPaintingColor = { id: colorId, color: colorValue };
+                    
+                    showNotification(`Modo pintura ativado: ${window.customColors.find(c => c.id === colorId)?.name || 'Cor personalizada'}`, 'info');
+                }
+            });
+            
+            document.getElementById('add-custom-color').addEventListener('click', function() {
+                const color = prompt('Digite a cor em formato hexadecimal (ex: #FF5733):');
+                if (color && /^#[0-9A-F]{6}$/i.test(color)) {
+                    const name = prompt('Digite o nome da cor:') || 'Cor Personalizada';
+                    const id = 'custom-' + Date.now();
+                    
+                    window.customColors.push({ id, name, color });
+                    
+                    // Add to palette
+                    const colorElement = document.createElement('div');
+                    colorElement.className = 'custom-color';
+                    colorElement.setAttribute('data-color-id', id);
+                    colorElement.setAttribute('data-color-value', color);
+                    colorElement.title = name;
+                    colorElement.style.backgroundColor = color;
+                    
+                    document.getElementById('custom-colors-container').insertBefore(colorElement, document.getElementById('add-custom-color'));
+                    
+                    showNotification('Cor adicionada com sucesso!', 'success');
+                } else if (color) {
+                    showNotification('Formato de cor inválido. Use formato hex (#FF5733)', 'error');
+                }
+            });
+            
+            document.getElementById('clear-custom-colors').addEventListener('click', function() {
+                // Remove all custom color classes from cells
+                const cells = document.querySelectorAll('td');
+                cells.forEach(cell => {
+                    const colorClasses = Array.from(cell.classList).filter(cls => cls.startsWith('custom-color-'));
+                    colorClasses.forEach(cls => {
+                        cell.classList.remove(cls);
+                        cell.style.backgroundColor = '';
+                        cell.style.color = '';
+                    });
+                });
+                
+                showNotification('Cores personalizadas limpas com sucesso!', 'success');
+            });
+            
+            document.getElementById('exit-paint-mode').addEventListener('click', function() {
+                window.currentPaintingColor = null;
+                document.querySelectorAll('.custom-color').forEach(el => {
+                    el.classList.remove('active');
+                });
+                showNotification('Modo pintura desativado', 'info');
+            });
+        }
+        
+        // Initialize timeline marker and schedule square functionality
+        function initializeScheduleFeatures() {
+            setupScheduleSquareFunctionality();
+            createColorCurtainPanel(); // Add color curtain panel
+            
+            // Update timeline marker every minute
+            setInterval(updateTimelineMarker, 60000);
+            
+            // Initial update
+            updateTimelineMarker();
+        }
+
+    </script>
+</body>
+</html>

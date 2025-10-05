@@ -1,0 +1,53 @@
+{
+  "name": "Cronograma USF Apipucos",
+  "short_name": "USF Apipucos",
+  "description": "Sistema de cronograma da Unidade de Saúde da Família Apipucos",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#007bff",
+  "orientation": "portrait-primary",
+  "scope": "./",
+  "lang": "pt-BR",
+  "categories": ["health", "medical", "productivity"],
+  "icons": [
+    {
+      "src": "./logotipo-recife-cuida.jpeg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./logotipo-sus.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Ver Cronograma",
+      "short_name": "Cronograma",
+      "description": "Visualizar cronograma da semana",
+      "url": "./?tab=resumo",
+      "icons": [
+        {
+          "src": "./logotipo-recife-cuida.jpeg",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Editar Cronograma",
+      "short_name": "Editar",
+      "description": "Editar informações do cronograma",
+      "url": "./?action=edit",
+      "icons": [
+        {
+          "src": "./logotipo-recife-cuida.jpeg",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+}
