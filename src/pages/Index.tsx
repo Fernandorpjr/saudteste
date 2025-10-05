@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Search, Robot, CalendarDays } from 'lucide-react'; // Import Lucide icons
 
 const IndexPage: React.FC = () => {
   return (
@@ -15,22 +16,27 @@ const IndexPage: React.FC = () => {
 
       <nav className="flex flex-col md:flex-row gap-6">
         <Link
+          to="/schedule"
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-lg shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center text-lg"
+        >
+          <CalendarDays className="w-6 h-6 mr-3" /> Ver Cronograma
+        </Link>
+        <Link
           to="/sisreg"
           className="bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-8 rounded-lg shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center text-lg"
         >
-          <i className="fas fa-search mr-3"></i> Demonstrativo SISREG
+          <Search className="w-6 h-6 mr-3" /> Demonstrativo SISREG
         </Link>
         <Link
           to="/flor"
           className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-4 px-8 rounded-lg shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center text-lg"
         >
-          <i className="fas fa-robot mr-3"></i> Flor - Recepcionista Virtual
+          <Robot className="w-6 h-6 mr-3" /> Flor - Recepcionista Virtual
         </Link>
       </nav>
 
       <footer className="mt-16 text-center text-gray-500 dark:text-gray-400 text-sm">
         <p>&copy; 2025 Unidade de Saúde da Família Apipucos</p>
-        <p>O cronograma será integrado aqui em breve.</p>
       </footer>
     </div>
   );
