@@ -9,7 +9,7 @@ import ScheduleLegend from '../components/schedule/ScheduleLegend';
 import ProfessionalsList from '../components/schedule/ProfessionalsList';
 import ColorPaletteCurtain from '../components/schedule/ColorPaletteCurtain';
 import { exportToCSV, printCurrentSchedule } from '../utils/scheduleUtils';
-import { X, Palette } from 'lucide-react'; // Mantendo X e Palette para o botão de toggle da cortina
+// Removido import { X, Palette } from 'lucide-react';
 
 const SchedulePage: React.FC = () => {
   const {
@@ -84,7 +84,6 @@ const SchedulePage: React.FC = () => {
               scheduleData={scheduleData}
               daysOrder={daysOrder}
               isEditing={isEditing}
-              customColors={customColors}
             />
             <ScheduleLegend customColors={customColors} />
             <ProfessionalsList />
