@@ -9,7 +9,8 @@ import ScheduleLegend from '../components/schedule/ScheduleLegend';
 import ProfessionalsList from '../components/schedule/ProfessionalsList';
 import ColorPaletteCurtain from '../components/schedule/ColorPaletteCurtain';
 import { exportToCSV, printCurrentSchedule } from '../utils/scheduleUtils';
-// Removido import { X, Palette } from 'lucide-react';
+// Imports 'X' e 'Palette' removidos, pois são usados apenas no ColorPaletteCurtain
+// import { X, Palette } from 'lucide-react'; 
 
 const SchedulePage: React.FC = () => {
   const {

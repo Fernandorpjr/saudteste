@@ -4,7 +4,7 @@ import { CustomColor } from '../../types/schedule';
 
 interface ColorPaletteCurtainProps {
   isCurtainOpen: boolean;
-  setIsCurtainOpen: (isOpen: boolean) => void;
+  setIsCurtainOpen: (isOpen: boolean | ((prev: boolean) => boolean)) => void; // Corrigido o tipo para aceitar função
   customColors: CustomColor[];
   currentPaintingColor: CustomColor | null;
   setCurrentPaintingColor: (color: CustomColor | null) => void;

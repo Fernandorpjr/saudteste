@@ -1,16 +1,15 @@
 import React from 'react';
-import { Calendar } from 'lucide-react'; // Removido Palette
-import { DaySchedule } from '../../types/schedule'; // Removido CustomColor
-import { getCellClass } from '../../utils/scheduleUtils';
+import { Calendar } from 'lucide-react'; // 'Palette' removido
+import { DaySchedule, CustomColor } from '../../types/schedule';
 
 interface WeeklySummaryTableProps {
   scheduleData: Record<string, DaySchedule>;
   daysOrder: string[];
   isEditing: boolean;
-  // Removido customColors: CustomColor[];
+  // 'customColors' removido, pois não é utilizado neste componente
 }
 
-const WeeklySummaryTable: React.FC<WeeklySummaryTableProps> = ({ scheduleData, daysOrder, isEditing }) => { // Removido customColors
+const WeeklySummaryTable: React.FC<WeeklySummaryTableProps> = ({ scheduleData, daysOrder, isEditing }) => { // 'customColors' removido da desestruturação
   const professionals = [
     "Dr. Rubens Cavalcanti", "Dr. Felipe Jacobovitz (R1)", "Dra. Sabrynna Mayara (R2)",
     "Dr. Marcos Augusto", "Enf. Clariane Falcão", "Enf. Tharcia Bezerra",
