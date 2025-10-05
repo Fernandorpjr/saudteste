@@ -4,7 +4,7 @@ import { CustomColor } from '../../types/schedule';
 
 interface ColorPaletteCurtainProps {
   isCurtainOpen: boolean;
-  setIsCurtainOpen: (isOpen: boolean | ((prev: boolean) => boolean)) => void; // Corrigido o tipo para aceitar função
+  setIsCurtainOpen: React.Dispatch<React.SetStateAction<boolean>>; // Corrigido o tipo aqui
   customColors: CustomColor[];
   currentPaintingColor: CustomColor | null;
   setCurrentPaintingColor: (color: CustomColor | null) => void;
@@ -81,7 +81,7 @@ const ColorPaletteCurtain: React.FC<ColorPaletteCurtainProps> = ({
       {/* Curtain Panel Toggle Button */}
       <button
         className="fixed top-1/2 right-0 -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-l-lg shadow-lg z-50 transition-colors duration-200"
-        onClick={() => setIsCurtainOpen((prev: boolean) => !prev)} // Corrigido o tipo de 'prev'
+        onClick={() => setIsCurtainOpen((prev: boolean) => !prev)}
         title={isCurtainOpen ? 'Fechar paleta de cores' : 'Abrir paleta de cores'}
       >
         {isCurtainOpen ? <X className="w-6 h-6" /> : <Palette className="w-6 h-6" />}
