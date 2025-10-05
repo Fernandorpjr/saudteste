@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Robot, CalendarDays } from 'lucide-react'; // Import Lucide icons
+import { Search, Bot, CalendarDays } from 'lucide-react'; // Import Lucide icons
 
 const IndexPage: React.FC = () => {
   return (
@@ -31,7 +31,7 @@ const IndexPage: React.FC = () => {
           to="/flor"
           className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-4 px-8 rounded-lg shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center text-lg"
         >
-          <Robot className="w-6 h-6 mr-3" /> Flor - Recepcionista Virtual
+          <Bot className="w-6 h-6 mr-3" /> Flor - Recepcionista Virtual
         </Link>
       </nav>
 

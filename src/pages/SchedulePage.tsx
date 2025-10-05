@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../integrations/supabase/client';
-import { CalendarWeek, CalendarDays, Palette, Edit, Save, Download, Share2, Printer, Eraser, Plus, X } from 'lucide-react';
+import { Calendar, CalendarDays, Palette, Edit, Save, Download, Share2, Printer, Eraser, Plus, X } from 'lucide-react';
 
 interface ScheduleSlot {
   horario: string;
@@ -128,7 +128,7 @@ const SchedulePage: React.FC = () => {
       <>
         <div className="mb-6 text-center">
           <h2 className="text-3xl font-bold text-blue-700 dark:text-blue-400 flex items-center justify-center gap-2">
-            <CalendarWeek className="w-8 h-8" /> Resumo Semanal
+            <Calendar className="w-8 h-8" /> Resumo Semanal
           </h2>
           <p className="text-gray-600 dark:text-gray-300 mt-2">Visão geral dos horários de funcionamento da USF Apipucos</p>
         </div>
@@ -154,7 +154,7 @@ const SchedulePage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {professionals.map((prof, profIndex) => (
+              {professionals.map((prof) => ( {/* Removed profIndex */}
                 <tr key={prof} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
                   <td className="py-3 px-4 text-sm font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap">{prof}</td>
                   {daysOrder.map(day => (
@@ -615,7 +615,7 @@ const SchedulePage: React.FC = () => {
             ${activeTab === 'resumo' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-blue-700 hover:bg-blue-50 hover:text-blue-800 dark:bg-gray-700 dark:text-blue-300 dark:hover:bg-gray-600'}`}
           onClick={() => handleTabClick('resumo')}
         >
-          <CalendarWeek className="w-5 h-5" /> Resumo da Semana
+          <Calendar className="w-5 h-5" /> Resumo da Semana
         </button>
         {daysOrder.map(dayKey => (
           <button
