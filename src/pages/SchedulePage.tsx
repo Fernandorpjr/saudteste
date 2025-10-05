@@ -9,7 +9,7 @@ import ScheduleLegend from '../components/schedule/ScheduleLegend';
 import ProfessionalsList from '../components/schedule/ProfessionalsList';
 import ColorPaletteCurtain from '../components/schedule/ColorPaletteCurtain';
 import { exportToCSV, printCurrentSchedule } from '../utils/scheduleUtils';
-import { X, Palette } from 'lucide-react';
+import { X, Palette } from 'lucide-react'; // Mantendo X e Palette para o botão de toggle da cortina
 
 const SchedulePage: React.FC = () => {
   const {
@@ -36,7 +36,7 @@ const SchedulePage: React.FC = () => {
 
   const toggleEditing = () => {
     setIsEditing(prev => !prev);
-    if (isEditing) { // If exiting edit mode, save changes
+    if (isEditing) { // Se estiver saindo do modo de edição, salva as alterações
       saveSchedule();
     }
   };
